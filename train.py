@@ -226,10 +226,20 @@ def main(job_config: JobConfig):
             MixtureKey({"pile_set_name": ["Enron Emails"]}): 0.0030,
         })
 
-        mixture_ado = DynamicMixture(chunk_size=chunk_size, initial_mixture=mixture_pile_static, mixing_alg=AdoDynamicMixing(gamma2=0.1, count_normalizer=1024, use_same_step_size=True, delta_min=0.01, subsampling_interval=10, scaling_law_update_interval=1000, ignore_initial_steps=500, start_step=1000, logging_path="/scratch/mboether/titanado.json",variant="vanilla"))
+        mixture_ado = DynamicMixture(chunk_size=chunk_size, initial_mixture=mixture_pile_static, mixing_alg=AdoDynamicMixing(gamma2=0.1, count_normalizer=1024, use_same_step_size=True, delta_min=0.01, subsampling_interval=10, scaling_law_update_interval=1000, ignore_initial_steps=500, start_step=1000, logging_path="/iopsstor/scratch/cscs/mbther/ado.json",variant="vanilla"))
         
         # Set this to the mixture you want to use.
-        mixture = mixture_ado 
+        if job_config.mixtera.pile == "ado":
+            mixture = mixture_ado
+            logger.info("Using ADO mixture")
+        elif job_config.mixtera.pile == "default":
+            mixture = mixture_pile_default
+            logger.info("Using default mixture")
+        elif job_config.mixtera.pile == "natural":
+            mixture = mixture_pile_static
+            logger.info("Using natural mixture")
+        else:
+            raise RuntimeError(f"Unknown pie mixture {job_config.mixtera.pile}")
 
         query_execution_args = QueryExecutionArgs(mixture=mixture, dp_groups=dp_degree, nodes_per_group=nodes_per_dp_group, num_workers=num_workers)
         # Please note that chunk_reading_mixture_type="token" is currently necessary in torchtitan, since we did not implement tokenization outside of Mixtera in torchtitan.

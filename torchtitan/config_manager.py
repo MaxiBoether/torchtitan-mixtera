@@ -684,6 +684,15 @@ class JobConfig:
             help="chunk_reading_degree_of_parallelism",
         )
         self.parser.add_argument(
+            "--mixtera.pile",
+            type=str,
+            default="default",
+            choices=["ado", "default", "natural"],
+            help="""
+                currently we only support mixtures for the pile hardcoded, this picks the mixture for the training.
+            """,
+        )
+        self.parser.add_argument(
             "--hf.disable_streaming",
             action="store_true",
             help="If set, uses the standard MappedHuggingface dataset instead of an iterable one.",
